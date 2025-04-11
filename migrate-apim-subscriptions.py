@@ -64,6 +64,21 @@ def get_subscription_keys(apim, subscription_id, token):
 def migrate_subscriptions(source_apim, target_apim):
     token = get_token()
     subscriptions = list_subscriptions(source_apim, token.token)
+
+    for sub in subscriptions:
+        subscription_id = sub["name"]
+        try:
+            subscription_name = sub["properties"]["displayName"]
+            print(f"🔄 Getting subscription '{subscription_name}' ({subscription_id}) from source...")
+            subscription = get_subscription(source_apim, subscription_id, token)
+            print(f"🔄 Getting keys for subscription '{subscription_name}' ({subscription_id}) from source...")
+            keys = get_subscription_keys(source_apim, subscription_id, token)
+
+        except requests.HTTPError as e:
+            print(f"❌ Failed to migrate {subscription_id}: {e.response.text}")
+
+
+
     return token
 
 def main():
